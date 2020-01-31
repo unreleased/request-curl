@@ -97,6 +97,6 @@ Automatically convert the response body to a JSON object rather than having to u
 ```javascript
 const opts = {
     url: 'https://www.httpbin.org/headers',
-    json: true // default false
+    json: true // Default false
 }
 ```
