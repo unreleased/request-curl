@@ -77,3 +77,24 @@ const opts = {
     maxRedirects: 5 // Default 10
 }
 ```
+
+## SSL
+
+Force strict usage of SSL in the requests.
+
+```javascript
+const opts = {
+    url: 'https://www.httpbin.org/headers',
+    strictSSL: false, // Default true
+}
+```
+
+## JSON
+
+Automatically convert the response body to a JSON object rather than having to use `JSON.parse()`.
+
+```javascript
+const opts = {
+    url: 'https://www.httpbin.org/headers',
+    json: true // default false
+```
