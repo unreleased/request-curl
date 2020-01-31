@@ -86,10 +86,15 @@ request.create = async (opts) => {
                     headerList[header] = headers[0][header]
                 }
             }
+
+            let body = data
+            if (opts.json) {
+                body = JSON.parse(data)
+            }
     
             // Create request.js similar-style response
             const response = {
-                body: data,
+                body: body,
                 headers: headerList,
                 statusCode: statusCode,
                 time: this.getInfo('TOTAL_TIME')

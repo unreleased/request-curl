@@ -13,5 +13,20 @@ The goal of this library is to use the request.js syntax/options without using N
 - [x] Max redirects
 - [x] SSL support
 - [x] Proxy tunnelling
+- [x] Automatically convert body to JSON
 - [ ] Automatic Cookiejar/Cookie sessions
-- [ ] Automatic toJSON
+
+
+## Headers
+
+Currently header order is not supported by cURL. This isn't really a big issue currently since there's many browsers that don't have specified header orders which you can emulate. Headers follow the same request.js syntax.
+
+```javascript
+const opts = {
+    url: 'https://www.httpbin.org/headers'
+    headers: {
+        'User-agent': 'CurlyRequest/v1',
+        'Accept': 'application/json'
+    }
+}
+```
