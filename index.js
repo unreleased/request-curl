@@ -8,6 +8,9 @@ request.create = async (opts) => {
     return new Promise(async (resolve, reject) => {
         const curl = new Curl()
 
+        curl.setOpt('CUSTOMREQUEST', opts.method || 'GET')
+        curl.setOpt('ACCEPT_ENCODING', '')
+
         // URL parameter
         if (typeof opts.url === 'undefined') {
             throw new Error('Missing `url` parameter')
@@ -22,9 +25,6 @@ request.create = async (opts) => {
             // Default, requests will fail without valid SSL certificate
             curl.setOpt('SSL_VERIFYPEER', false)
         }
-    
-        curl.setOpt('CUSTOMREQUEST', opts.method || 'GET')
-        curl.setOpt('ACCEPT_ENCODING', '')
 
         // Tunnel through proxy
         if (opts.tunnel) {
@@ -78,7 +78,6 @@ request.create = async (opts) => {
             curl.setOpt('MAXREDIRS', 10)
         }
     
-    
         curl.on('end', function (statusCode, data, headers) {
             // Remove results header and compress into single object
             const headerList = {}
@@ -97,7 +96,6 @@ request.create = async (opts) => {
             }
     
             this.close();
-
             resolve(response)
             
         });
@@ -109,9 +107,7 @@ request.create = async (opts) => {
     
         curl.perform();
     })
-    
 }
-
 
 module.exports = request
 

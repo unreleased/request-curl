@@ -14,3 +14,4 @@ The goal of this library is to use the request.js syntax/options without using N
 - [x] SSL support
 - [x] Proxy tunnelling
 - [ ] Automatic Cookiejar/Cookie sessions
+- [ ] Automatic toJSON

@@ -1,0 +1,31 @@
+{
+  "name": "request-curl",
+  "version": "1.0.0",
+  "description": "The goal of this library is to use the request.js syntax/options without using NodeJS's default HTTP Client and instead using cURL to make the requests. Made after spending too long looking for a good HTTP2 supported request client without running into major issues when using proxies or making mass requests such as `h2-request` or `got`",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "node-libcurl": "^2.0.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unreleased/request-curl.git"
+  },
+  "keywords": [
+    "request.js",
+    "request-curl",
+    "curl"
+  ],
+  "author": "@unreleased",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/unreleased/request-curl/issues"
+  },
+  "homepage": "https://github.com/unreleased/request-curl#readme"
+}
