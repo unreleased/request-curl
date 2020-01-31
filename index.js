@@ -24,7 +24,14 @@ request.create = async (opts) => {
         }
     
         curl.setOpt('CUSTOMREQUEST', opts.method || 'GET')
-        curl.setOpt(Curl.option.ACCEPT_ENCODING, '')
+        curl.setOpt('ACCEPT_ENCODING', '')
+
+        // Tunnel through proxy
+        if (opts.tunnel) {
+            curl.setOpt('HTTPPROXYTUNNEL', true)
+        } else {
+            curl.setOpt('HTTPPROXYTUNNEL', false)
+        }
     
         // HTTP VERSION
         if (opts.http2) {
@@ -106,38 +113,5 @@ request.create = async (opts) => {
 }
 
 
-
-const opts = {
-    url: 'https://www.sneakersnstuff.com/',
-    method: 'GET',
-    headers: {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'en-US,en;q=0.9,pl;q=0.8',
-        'cache-control': 'no-cache',
-        'pragma': 'no-cache',
-        'sec-fetch-mode': 'navigation',
-        'sec-fetch-site': 'none',
-        'sec-fetch-user': '?1',
-        'upgrade-insecure-requests': '1',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
-    },
-    http2: true,
-    // proxy: 'http://cvcuh:hosobgoqoq@45.146.222.95:3128',
-    ciphers: 'NULL-SHA256 AES128-SHA256 AES256-SHA256 AES128-GCM-SHA256 AES256-GCM-SHA384 DH-RSA-AES128-SHA256 DH-RSA-AES256-SHA256 DH-RSA-AES128-GCM-SHA256 DH-RSA-AES256-GCM-SHA384 DH-DSS-AES128-SHA256 DH-DSS-AES256-SHA256 DH-DSS-AES128-GCM-SHA256 DH-DSS-AES256-GCM-SHA384 DHE-RSA-AES128-SHA256 DHE-RSA-AES256-SHA256 DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES256-GCM-SHA384 DHE-DSS-AES128-SHA256 DHE-DSS-AES256-SHA256 DHE-DSS-AES128-GCM-SHA256 DHE-DSS-AES256-GCM-SHA384 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES256-SHA384 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-ECDSA-AES128-SHA256 ECDHE-ECDSA-AES256-SHA384 ECDHE-ECDSA-AES128-GCM-SHA256 ECDHE-ECDSA-AES256-GCM-SHA384 ADH-AES128-SHA256 ADH-AES256-SHA256 ADH-AES128-GCM-SHA256 ADH-AES256-GCM-SHA384 AES128-CCM AES256-CCM DHE-RSA-AES128-CCM DHE-RSA-AES256-CCM AES128-CCM8 AES256-CCM8 DHE-RSA-AES128-CCM8 DHE-RSA-AES256-CCM8 ECDHE-ECDSA-AES128-CCM ECDHE-ECDSA-AES256-CCM ECDHE-ECDSA-AES128-CCM8 ECDHE-ECDSA-AES256-CCM8',
-    strictSSL: true,
-    followRedirects: false,
-    maxRedirects: 1,
-    // jar: true
-}
-
-async function start() {
-    const x = await request.create(opts)
-    console.log(x)
-}
-
-start()
-
-
-
 module.exports = request
+
