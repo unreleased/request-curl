@@ -63,7 +63,7 @@ request.create = async (opts) => {
         }
     
         // Follow redirects on 3XX requests
-        if (typeof opts.followRedirect !== 'undefined') {
+        if (typeof opts.followRedirects !== 'undefined') {
             curl.setOpt('FOLLOWLOCATION', opts.followRedirect)
         } else {
             // Default `true` as specified in request.js docs
