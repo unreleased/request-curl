@@ -15,7 +15,7 @@ The goal of this library is to use the request.js syntax/options without using N
 - [x] Proxy tunnelling
 - [x] Automatically convert body to JSON
 - [x] Built in JSON parsing
-- [ ] Automatic Cookiejar/Cookie sessions
+- [x] Automatic Cookiejar/Cookie sessions
 - [ ] Support sending JSON body in request
 
 
