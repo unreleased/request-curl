@@ -1,7 +1,45 @@
 const { Curl } = require('node-libcurl')
 
 const request = {
-    jar: () => {}
+    jar: () => {
+        request.jars.push({})
+        const id  = request.jars.length - 1
+        const jar = request.jars[id]
+        return id
+    },
+    jars: []
+}
+
+
+request.parseCookieString = (cookieString) => {
+    let cookies = cookieString
+    if (cookieString.includes('; ')) {
+        cookies = cookieString.split('; ')
+    }
+
+    const cookieObj = {}
+
+    for (let i in cookies) {
+        const cookie = cookies[i]
+        if (cookie == '') break
+
+        const key = cookie.split('=')[0]
+        const val = cookie.split('=')[1]
+        cookieObj[key] = val
+    }
+
+    return cookieObj
+}
+
+request.jarToString = (id) => {
+    const jar = request.jars[id]
+    const cookies = []
+
+    for (let key in jar) {
+        cookies.push(`${key}=${jar[key]}`)
+    }
+    
+    return cookies.join('; ')
 }
 
 request.create = async (opts) => {
@@ -32,6 +70,19 @@ request.create = async (opts) => {
         } else {
             curl.setOpt('HTTPPROXYTUNNEL', false)
         }
+
+        // Form for POST requests
+        if (opts.form) {
+            const data = []
+            const keys = Object.keys(opts.form)
+
+            for (let i in keys) {
+                const key = keys[i]
+                data.push(`${key}=${opts.form[key]}`)
+            }
+
+            curl.setOpt('POSTFIELDS', data.join('&'))
+        }
     
         // HTTP VERSION
         if (opts.http2) {
@@ -41,10 +92,27 @@ request.create = async (opts) => {
         // Append headers to the request
         if (typeof opts.headers === 'object') {
             const headers = []
+
             for (let header in opts.headers) {
-                headers.push(`${header}: ${opts.headers[header]}`)
+                // Cookie header will override duplicate values in cookie jar. 
+                if (header.toLowerCase() == 'cookie') {
+                    const userSetCookies = request.parseCookieString(opts.headers[header])
+
+                    if (opts.jar >= 0) {
+                        // If user manually sets a cookie. Override it
+                        for (let i in userSetCookies) {
+                            request.jars[opts.jar][i] = userSetCookies[i]
+                        }
+                        headers.push(`${header}: ${request.jarToString(opts.jar)}`)
+
+                    } else {
+                        headers.push(`${header}: ${opts.headers[header]}`)
+                    }
+                } else {
+                    headers.push(`${header}: ${opts.headers[header]}`)
+                }
             }
-    
+
             curl.setOpt(Curl.option.HTTPHEADER, headers)
         }
     
@@ -80,13 +148,35 @@ request.create = async (opts) => {
     
         curl.on('end', function (statusCode, data, headers) {
             // Remove results header and compress into single object
+            let cookieString = ''
+            const cookies = {}
+            const respHeaders = headers[(headers.length - 1)]
+
             const headerList = {}
-            for (let header in headers[0]) {
+            for (let header in respHeaders) {
                 if (header != 'result') {
-                    headerList[header] = headers[0][header]
+                    headerList[header] = respHeaders[header]
+                }
+
+                if (header.toLowerCase() == 'set-cookie') {
+                    for (let i in respHeaders[header]) {
+                        const cookie = respHeaders[header][i]
+                        const key    = cookie.split('=')[0]
+                        const value  = cookie.split('=')[1].split(';')[0]
+                        cookies[key] = value
+
+                        // Create string cookie to easily be passed between requests
+                        cookieString += `${key}=${value}; `
+
+                        // Append cookie to jar if active
+                        if (opts.jar >= 0) {
+                            request.jars[opts.jar][key] = value
+                        }
+                    }
                 }
             }
 
+            // Parse JSON if needed
             let body = data
             if (opts.json) {
                 body = JSON.parse(data)
@@ -97,12 +187,13 @@ request.create = async (opts) => {
                 body: body,
                 headers: headerList,
                 statusCode: statusCode,
+                cookies: cookies,
+                cookieString: cookieString,
                 time: this.getInfo('TOTAL_TIME')
             }
-    
+
             this.close();
             resolve(response)
-            
         });
     
         curl.on('error', function(err) {

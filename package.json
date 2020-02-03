@@ -1,12 +1,13 @@
 {
   "name": "request-curl",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The goal of this library is to use the request.js syntax/options without using NodeJS's default HTTP Client and instead using cURL to make the requests. Made after spending too long looking for a good HTTP2 supported request client without running into major issues when using proxies or making mass requests such as `h2-request` or `got`",
   "main": "index.js",
   "directories": {
     "test": "tests"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
     "node-libcurl": "^2.0.3"
   },
   "devDependencies": {},
