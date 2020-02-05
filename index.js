@@ -71,6 +71,15 @@ request.create = async (opts) => {
             curl.setOpt('HTTPPROXYTUNNEL', false)
         }
 
+        // Rebuild path-dot-sequence /../ etc
+        if (opts.rebuild) {
+            curl.setOpt(Curl.option.PATH_AS_IS, false)
+        } else if (typeof opts.rebuild == 'undefined') {
+            curl.setOpt(Curl.option.PATH_AS_IS, true)
+        } else {
+            curl.setOpt(Curl.option.PATH_AS_IS, true)
+        }
+
         // Form for POST requests
         if (opts.form) {
             const data = []

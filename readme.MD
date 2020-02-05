@@ -16,6 +16,7 @@ The goal of this library is to use the request.js syntax/options without using N
 - [x] Automatically convert body to JSON
 - [x] Built in JSON parsing
 - [x] Automatic Cookiejar/Cookie sessions
+- [x] Support path as is and rebuilding path dot sequences `/../`
 - [ ] Support sending JSON body in request
 
 
@@ -77,6 +78,17 @@ const opts = {
     url: 'https://www.httpbin.org/headers',
     followRedirects: false, // Default true
     maxRedirects: 5 // Default 10
+}
+```
+
+## Path-dot-sequence
+
+Curl-request has support for allowing or disallowing URL rebuilding `https://www.example.com/foo/../bar` could collapse to `https://www.example.com/bar`
+
+```javascript
+const opts = {
+    url: 'https://www.httpbin.org/test/../headers', // This won't be collapsed if rebuild is set as false.
+    rebuild: false // Default true
 }
 ```
 
