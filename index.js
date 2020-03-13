@@ -1,7 +1,21 @@
 const { Curl } = require('node-libcurl')
 const tough = require('tough-cookie')
+const deepmerge = require('deepmerge');
 
-const request = async (opts) => {
+let request = {
+	defaults: {},
+}
+
+request = async (opts) => {
+	// Handle defaults, prevent deepmerge from breaking the cookiejar.
+	requestOpts = opts
+	if (request.defaults) {
+		opts = deepmerge(request.defaults, opts)
+		if (opts.jar) {
+			opts.jar = requestOpts.jar
+		}
+	}
+
 	return new Promise(async (resolve, reject) => {
 		const curl = new Curl()
 
@@ -129,8 +143,8 @@ const request = async (opts) => {
 					headerList[header] = respHeaders[header]
 				}
 				
+				// Append the set cookies to their jar if they are using
 				if (header.toLowerCase() == 'set-cookie' && opts.jar) {
-					// Append the set cookies to their jar if they are using
 					respHeaders[header].forEach(el => {
 						opts.jar.setCookieSync(el, opts.url)
 					});
@@ -176,6 +190,13 @@ const request = async (opts) => {
 
 request.jar = () => {
 	return new tough.CookieJar();
+}
+
+request.defaults = (defaults = {}) => {
+	const req = request;
+	req.defaults = defaults
+
+	return req
 }
 
 module.exports = request
