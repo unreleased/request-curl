@@ -80,7 +80,6 @@ const request = async (opts) => {
 					} else {
 						// Not using a cookie jar, just use the header as it is.
 						try {
-							console.log("Using cookies in request.")
 							const cookies = tough.Cookie.parse(opts.headers[header]).toString()
 							headers.push(`${header}: ${cookies}`)
 						} catch(err) {
@@ -117,21 +116,8 @@ const request = async (opts) => {
 			}
 		}
 
-		// Follow redirects on 3XX requests
-		if (typeof opts.followRedirects !== 'undefined') {
-			curl.setOpt('FOLLOWLOCATION', opts.followRedirect)
-		} else {
-			// Default `true` as specified in request.js docs
-			curl.setOpt('FOLLOWLOCATION', true)
-		}
-
-		// Max redirects to follow
-		if (typeof opts.maxRedirects !== 'undefined') {
-			curl.setOpt('MAXREDIRS', opts.maxRedirects)
-		} else {
-			// Default `10` according to request.js docs
-			curl.setOpt('MAXREDIRS', 10)
-		}
+		// Disable cURL redirects because they're handled manually.
+		curl.setOpt('FOLLOWLOCATION', false)
 
 		curl.on('end', function (statusCode, data, headers) {
 			// Remove results header and compress into single object
@@ -144,11 +130,20 @@ const request = async (opts) => {
 				}
 				
 				if (header.toLowerCase() == 'set-cookie' && opts.jar) {
-					console.log(respHeaders[header])
 					// Append the set cookies to their jar if they are using
 					respHeaders[header].forEach(el => {
 						opts.jar.setCookieSync(el, opts.url)
 					});
+				}
+			}
+
+			// Handle redirect following manually to use tough-cookie to set new cookies from 3XX responses.
+			if (opts.followRedirects && curl.getInfo("REDIRECT_URL")) {
+				opts.redirectCount = (opts.redirectCount + 1) || 1
+				if (opts.redirectCount != opts.maxRedirects) {
+					opts.url = curl.getInfo("REDIRECT_URL")
+					this.close();
+					return resolve(request(opts))
 				}
 			}
 
