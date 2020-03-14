@@ -1,6 +1,7 @@
 const { Curl } = require('node-libcurl')
 const tough = require('tough-cookie')
 const deepmerge = require('deepmerge');
+const isPlainObject = require('is-plain-object')
 
 let request = {
 	defaults: {},
@@ -8,13 +9,13 @@ let request = {
 
 request = async (opts) => {
 	// Handle defaults, prevent deepmerge from breaking the cookiejar.
-	requestOpts = opts
 	if (request.defaults) {
-		opts = deepmerge(request.defaults, opts)
-		if (opts.jar) {
-			opts.jar = requestOpts.jar
-		}
+		opts = deepmerge(request.defaults, opts, {
+			isMergeableObject: isPlainObject
+		})
 	}
+
+	console.log(opts.jar.getCookieStringSync(opts.url))
 
 	return new Promise(async (resolve, reject) => {
 		const curl = new Curl()
@@ -110,6 +111,7 @@ request = async (opts) => {
 			if (!cookieHeaderExists) {
 				// If they don't have a cookie request-header and they use a jar, only use coookies from the jar.
 				const cookies = opts.jar.getCookieStringSync(opts.url)
+				console.log(`Using cookies: ${cookies}`)
 				headers.push(`cookie: ${cookies}`)
 			}
 
@@ -117,7 +119,7 @@ request = async (opts) => {
 		}
 
 		// Proxy usage
-		if (typeof opts.proxy !== 'undefined') {
+		if (opts.proxy) {
 			curl.setOpt('PROXY', opts.proxy)
 		}
 
@@ -133,6 +135,8 @@ request = async (opts) => {
 		// Disable cURL redirects because they're handled manually.
 		curl.setOpt('FOLLOWLOCATION', false)
 
+		// console.log(opts)
+
 		curl.on('end', function (statusCode, data, headers) {
 			// Remove results header and compress into single object
 			const respHeaders = headers[(headers.length - 1)]
@@ -146,6 +150,7 @@ request = async (opts) => {
 				// Append the set cookies to their jar if they are using
 				if (header.toLowerCase() == 'set-cookie' && opts.jar) {
 					respHeaders[header].forEach(el => {
+						// console.log(`Adding: ${el} to cookiejar`)
 						opts.jar.setCookieSync(el, opts.url)
 					});
 				}
@@ -156,6 +161,8 @@ request = async (opts) => {
 				opts.redirectCount = (opts.redirectCount + 1) || 1
 				if (opts.redirectCount != opts.maxRedirects) {
 					opts.url = curl.getInfo("REDIRECT_URL")
+					opts.method = opts.followMethod || 'GET'
+					console.log(`Redirecting to: ${opts.method}: ${opts.url}`)
 					this.close();
 					return resolve(request(opts))
 				}
@@ -195,7 +202,6 @@ request.jar = () => {
 request.defaults = (defaults = {}) => {
 	const req = request;
 	req.defaults = defaults
-
 	return req
 }
 
