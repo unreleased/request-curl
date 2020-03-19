@@ -15,9 +15,10 @@ The goal of this library is to use the request.js syntax/options without using N
 - [x] Proxy tunnelling
 - [x] Automatically convert body to JSON
 - [x] Built in JSON parsing
-- [x] Automatic Cookiejar/Cookie sessions
-- [x] Support path as is and rebuilding path dot sequences `/../`
+- [x] Automatic Cookiejar/Cookie sessions through ['tough-cookie'](https://www.npmjs.com/package/tough-cookie)
+- [x] Supports path as is and disabling rebuilding path dot sequences (AKA Path traversing) `/../`
 - [ ] Support sending JSON body in request
+- [x] Ability to disable tcp socket reuse
 
 
 ## Headers
