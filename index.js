@@ -1,7 +1,6 @@
 const { Curl } = require('node-libcurl')
 const tough = require('tough-cookie')
 const deepmerge = require('deepmerge');
-const isPlainObject = require('is-plain-object')
 
 let request = {
 	defaults: {},
@@ -9,14 +8,19 @@ let request = {
 
 request = async (opts) => {
 	// Handle defaults, prevent deepmerge from breaking the cookiejar.
+	requestOpts = opts
 	if (request.defaults) {
-		opts = deepmerge(request.defaults, opts, {
-			isMergeableObject: isPlainObject
-		})
+		opts = deepmerge(request.defaults, opts)
+		if (opts.jar) {
+			opts.jar = requestOpts.jar
+		}
 	}
 
 	return new Promise(async (resolve, reject) => {
 		const curl = new Curl()
+
+		// Uncomment for debugging requests
+		// curl.setOpt('VERBOSE', 1)
 
 		curl.setOpt('CUSTOMREQUEST', opts.method || 'GET')
 		curl.setOpt('ACCEPT_ENCODING', '')
@@ -27,6 +31,8 @@ request = async (opts) => {
 		} else {
 			curl.setOpt('URL', opts.url)
 		}
+		
+		
 
 		// Set default request method to GET
 		if (typeof opts.strictSSL !== 'undefined' && opts.strictSSL) {
@@ -34,6 +40,21 @@ request = async (opts) => {
 		} else {
 			// Default, requests will fail without valid SSL certificate
 			curl.setOpt('SSL_VERIFYPEER', false)
+		}
+
+
+		if (opts.timeout) {
+			curl.setOpt(Curl.option.TIMEOUT_MS, opts.timeout)
+		}
+
+		// Forever
+		if (opts.forever) {
+			curl.setOpt(Curl.option.TCP_KEEPALIVE, 2)
+			curl.setOpt(Curl.option.FORBID_REUSE, 0)
+		} else {
+			curl.setOpt(Curl.option.TCP_KEEPALIVE, 0)
+			curl.setOpt(Curl.option.FORBID_REUSE, 2)
+
 		}
 
 		// Tunnel through proxy
@@ -118,7 +139,7 @@ request = async (opts) => {
 		}
 
 		// Proxy usage
-		if (opts.proxy) {
+		if (typeof opts.proxy !== 'undefined') {
 			curl.setOpt('PROXY', opts.proxy)
 		}
 
@@ -157,7 +178,6 @@ request = async (opts) => {
 				opts.redirectCount = (opts.redirectCount + 1) || 1
 				if (opts.redirectCount != opts.maxRedirects) {
 					opts.url = curl.getInfo("REDIRECT_URL")
-					opts.method = opts.followMethod || 'GET'
 					this.close();
 					return resolve(request(opts))
 				}
@@ -197,6 +217,7 @@ request.jar = () => {
 request.defaults = (defaults = {}) => {
 	const req = request;
 	req.defaults = defaults
+
 	return req
 }
 
