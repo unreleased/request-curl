@@ -15,8 +15,6 @@ request = async (opts) => {
 		})
 	}
 
-	console.log(opts.jar.getCookieStringSync(opts.url))
-
 	return new Promise(async (resolve, reject) => {
 		const curl = new Curl()
 
@@ -110,9 +108,10 @@ request = async (opts) => {
 
 			if (!cookieHeaderExists) {
 				// If they don't have a cookie request-header and they use a jar, only use coookies from the jar.
-				const cookies = opts.jar.getCookieStringSync(opts.url)
-				console.log(`Using cookies: ${cookies}`)
-				headers.push(`cookie: ${cookies}`)
+				if (opts.jar) {
+					const cookies = opts.jar.getCookieStringSync(opts.url)
+					headers.push(`cookie: ${cookies}`)
+				}
 			}
 
 			curl.setOpt(Curl.option.HTTPHEADER, headers)
@@ -135,8 +134,6 @@ request = async (opts) => {
 		// Disable cURL redirects because they're handled manually.
 		curl.setOpt('FOLLOWLOCATION', false)
 
-		// console.log(opts)
-
 		curl.on('end', function (statusCode, data, headers) {
 			// Remove results header and compress into single object
 			const respHeaders = headers[(headers.length - 1)]
@@ -150,7 +147,6 @@ request = async (opts) => {
 				// Append the set cookies to their jar if they are using
 				if (header.toLowerCase() == 'set-cookie' && opts.jar) {
 					respHeaders[header].forEach(el => {
-						// console.log(`Adding: ${el} to cookiejar`)
 						opts.jar.setCookieSync(el, opts.url)
 					});
 				}
@@ -162,7 +158,6 @@ request = async (opts) => {
 				if (opts.redirectCount != opts.maxRedirects) {
 					opts.url = curl.getInfo("REDIRECT_URL")
 					opts.method = opts.followMethod || 'GET'
-					console.log(`Redirecting to: ${opts.method}: ${opts.url}`)
 					this.close();
 					return resolve(request(opts))
 				}
