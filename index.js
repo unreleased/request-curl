@@ -154,7 +154,6 @@ request = async (opts) => {
 				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
 			}
 
-			console.log(typeof opts.body)
 			curl.setOpt(Curl.option.HTTPHEADER, headers)
 		}
 
