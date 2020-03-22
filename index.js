@@ -102,7 +102,7 @@ request = async (opts) => {
 				if (header.toLowerCase() == 'cookie') {
 					if (opts.jar) {
 						// Get their cookies from their current jar
-						const jarCookies = opts.jar.getCookieStringSync(opts.url)
+						const jarCookies = (opts.jar.getCookieStringSync || opts.jar.getCookieString)(opts.url)
 
 						// Append cookies from their header to the jar
 						let cookies = ''
@@ -132,7 +132,7 @@ request = async (opts) => {
 			if (!cookieHeaderExists) {
 				// If they don't have a cookie request-header and they use a jar, only use coookies from the jar.
 				if (opts.jar) {
-					const cookies = opts.jar.getCookieStringSync(opts.url)
+					const cookies = (opts.jar.getCookieStringSync || opts.jar.getCookieString)(opts.url)
 					headers.push(`cookie: ${cookies}`)
 				}
 			}
