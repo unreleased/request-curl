@@ -88,6 +88,10 @@ request = async (opts) => {
 			curl.setOpt('POSTFIELDS', data.join('&'))
 		}
 
+		if (["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost) && opts.body) {
+			curl.setOpt('POSTFIELDS', JSON.stringify(opts.body));
+		}
+
 		// HTTP VERSION
 		if (opts.http2) {
 			curl.setOpt('HTTP_VERSION', 'CURL_HTTP_VERSION_2_0')
@@ -102,6 +106,7 @@ request = async (opts) => {
 				if (header.toLowerCase() == 'cookie') {
 					if (opts.jar) {
 						// Get their cookies from their current jar
+
 						const jarCookies = (opts.jar.getCookieStringSync || opts.jar.getCookieString)(opts.url)
 
 						// Append cookies from their header to the jar
@@ -137,6 +142,19 @@ request = async (opts) => {
 				}
 			}
 
+			if((opts.json || opts.jsonPost) && ["POST", "PATCH"].includes(opts.method.toUpperCase())) {
+				headers.push(`content-type: application/json`);
+				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
+			}
+			curl.setOpt(Curl.option.HTTPHEADER, headers)
+		} else {
+			let headers = [];
+			if((opts.json || opts.jsonPost) && ["POST", "PATCH"].includes(opts.method.toUpperCase())) {
+				headers.push(`content-type: application/json`);
+				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
+			}
+
+			console.log(typeof opts.body)
 			curl.setOpt(Curl.option.HTTPHEADER, headers)
 		}
 
