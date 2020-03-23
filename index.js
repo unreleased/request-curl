@@ -88,7 +88,7 @@ request = async (opts) => {
 			curl.setOpt('POSTFIELDS', data.join('&'))
 		}
 
-		if (["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost) && opts.body) {
+		if (opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost) && opts.body) {
 			curl.setOpt('POSTFIELDS', JSON.stringify(opts.body));
 		}
 
@@ -142,14 +142,14 @@ request = async (opts) => {
 				}
 			}
 
-			if((opts.json || opts.jsonPost) && ["POST", "PATCH"].includes(opts.method.toUpperCase())) {
+			if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost)) {
 				headers.push(`content-type: application/json`);
 				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
 			}
 			curl.setOpt(Curl.option.HTTPHEADER, headers)
 		} else {
 			let headers = [];
-			if((opts.json || opts.jsonPost) && ["POST", "PATCH"].includes(opts.method.toUpperCase())) {
+			if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) (opts.json || opts.jsonPost)) {
 				headers.push(`content-type: application/json`);
 				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
 			}
