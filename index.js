@@ -86,6 +86,10 @@ request = async (opts) => {
 			}
 
 			curl.setOpt('POSTFIELDS', data.join('&'))
+		} else if (opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost) && opts.body) {
+			curl.setOpt('POSTFIELDS', JSON.stringify(opts.body));
+		} else if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && opts.headers && Object.keys(opts.headers).map(x => x.toLowerCase()).includes("content-type")) {
+			curl.setOpt('POSTFIELDS', opts.body);
 		}
 
 		// HTTP VERSION
@@ -102,7 +106,8 @@ request = async (opts) => {
 				if (header.toLowerCase() == 'cookie') {
 					if (opts.jar) {
 						// Get their cookies from their current jar
-						const jarCookies = (opts.jar.getCookieStringSync || opts.jar.getCookieString)(opts.url)
+
+						const jarCookies = opts.jar.getCookieStringSync(opts.url)
 
 						// Append cookies from their header to the jar
 						let cookies = ''
@@ -132,9 +137,21 @@ request = async (opts) => {
 			if (!cookieHeaderExists) {
 				// If they don't have a cookie request-header and they use a jar, only use coookies from the jar.
 				if (opts.jar) {
-					const cookies = (opts.jar.getCookieStringSync || opts.jar.getCookieString)(opts.url)
+					const cookies = opts.jar.getCookieStringSync(opts.url)
 					headers.push(`cookie: ${cookies}`)
 				}
+			}
+
+			if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost)) {
+				headers.push(`content-type: application/json`);
+				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
+			}
+			curl.setOpt(Curl.option.HTTPHEADER, headers);
+		} else {
+			let headers = [];
+			if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) (opts.json || opts.jsonPost)) {
+				headers.push(`content-type: application/json`);
+				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
 			}
 
 			curl.setOpt(Curl.option.HTTPHEADER, headers)

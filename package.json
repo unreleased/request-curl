@@ -1,24 +1,47 @@
 {
-  "name": "request-curl",
-  "version": "1.1.5",
-  "description": "The goal of this library is to use the request.js syntax/options without using NodeJS's default HTTP Client and instead using cURL to make the requests. Made after spending too long looking for a good HTTP2 supported request client without running into major issues when using proxies or making mass requests such as `h2-request` or `got`",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
+  "_from": "github:elmthedev/request-curl",
+  "_id": "request-curl@1.1.5",
+  "_inBundle": false,
+  "_integrity": "",
+  "_location": "/request-curl",
+  "_phantomChildren": {
+    "psl": "1.7.0",
+    "punycode": "2.1.1"
   },
+  "_requested": {
+    "type": "git",
+    "raw": "github:elmthedev/request-curl",
+    "rawSpec": "github:elmthedev/request-curl",
+    "saveSpec": "github:elmthedev/request-curl",
+    "fetchSpec": null,
+    "gitCommittish": null
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "github:elmthedev/request-curl#e8d5aaf3d9a03810f97b15f5284cc5d11d279610",
+  "_spec": "github:elmthedev/request-curl",
+  "_where": "D:\\Node Projects\\rattenfanger-shopify-x",
+  "author": {
+    "name": "@unreleased"
+  },
+  "bugs": {
+    "url": "https://github.com/unreleased/request-curl/issues"
+  },
+  "bundleDependencies": false,
   "dependencies": {
     "deepmerge": "^4.2.2",
     "node-libcurl": "^2.0.3",
-    "tough-cookie": "^3.0.1"
+    "tough-cookie": "^4.0.0"
   },
+  "deprecated": false,
+  "description": "The goal of this library is to use the request.js syntax/options without using NodeJS's default HTTP Client and instead using cURL to make the requests. Made after spending too long looking for a good HTTP2 supported request client without running into major issues when using proxies or making mass requests such as `h2-request` or `got`",
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "directories": {
+    "test": "tests"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/unreleased/request-curl.git"
-  },
+  "homepage": "https://github.com/unreleased/request-curl#readme",
   "keywords": [
     "request.js",
     "request-curl",
@@ -26,10 +49,15 @@
     "http2",
     "h2"
   ],
-  "author": "@unreleased",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/unreleased/request-curl/issues"
+  "main": "index.js",
+  "name": "request-curl",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unreleased/request-curl.git"
   },
-  "homepage": "https://github.com/unreleased/request-curl#readme"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.1.5"
 }
