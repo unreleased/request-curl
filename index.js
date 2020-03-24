@@ -88,6 +88,8 @@ request = async (opts) => {
 			curl.setOpt('POSTFIELDS', data.join('&'))
 		} else if (opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost) && opts.body) {
 			curl.setOpt('POSTFIELDS', JSON.stringify(opts.body));
+		} else if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && opts.headers && Object.keys(opts.headers).map(x => x.toLowerCase()).includes("content-type")) {
+			curl.setOpt('POSTFIELDS', opts.body);
 		}
 
 		// HTTP VERSION
