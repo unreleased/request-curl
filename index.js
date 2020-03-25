@@ -22,10 +22,30 @@ request = async (opts) => {
 		// Uncomment for debugging requests
 		// curl.setOpt('VERBOSE', 1)
 
+
+		// A few default values.
 		curl.setOpt('CUSTOMREQUEST', opts.method || 'GET')
 		curl.setOpt('ACCEPT_ENCODING', '')
 
-		// URL parameter
+		/**
+		 * Disable NPN (Older) and enable ALPN (More modern)
+		 * This can be hugely problematic as I believe on Linux/MacOS systems it tries to use both which isn't browser-like
+		 * and can be detected.
+		 */
+
+		curl.setOpt('SSL_ENABLE_ALPN', true)
+        curl.setOpt('SSL_ENABLE_NPN', false)
+
+		/**
+		 * url: String
+		 * The host you wish to make a request to.
+		 * This should include:
+		 * - A protocol (http/https)
+		 * - A host or IP (93.184.216.34 / www.example.com)
+		 * - A path (/example)
+		 * - Constructed it should look like: https://www.example.com/page/
+		 */
+
 		if (typeof opts.url === 'undefined') {
 			throw new Error('Missing `url` parameter')
 		} else {
@@ -34,7 +54,10 @@ request = async (opts) => {
 		
 		
 
-		// Set default request method to GET
+		/**
+		 * TODO: Add notes
+		 */
+
 		if (typeof opts.strictSSL !== 'undefined' && opts.strictSSL) {
 			curl.setOpt('SSL_VERIFYPEER', true)
 		} else {
@@ -42,12 +65,22 @@ request = async (opts) => {
 			curl.setOpt('SSL_VERIFYPEER', false)
 		}
 
+		/**
+		 * timeout: int(ms)
+		 * Kill the socket attempting to connect after X milliseconds
+		 */
 
 		if (opts.timeout) {
 			curl.setOpt(Curl.option.TIMEOUT_MS, opts.timeout)
 		}
 
-		// Forever
+
+		/**
+		 * forever: boolean
+		 * Keeps the TCP connection open allowing request re-use.
+		 * To the best of my knowledge sites CAN detect when you are reusing a socket
+		 */
+
 		if (opts.forever) {
 			curl.setOpt(Curl.option.TCP_KEEPALIVE, 2)
 			curl.setOpt(Curl.option.FORBID_REUSE, 0)
@@ -64,11 +97,17 @@ request = async (opts) => {
 			curl.setOpt('HTTPPROXYTUNNEL', false)
 		}
 
-		// Rebuild path-dot-sequence /../ etc
+		/**
+		 * rebuild: boolean
+		 * Whether or not to squash the path-sequencing. Can be used to send unsquished http requests
+		 * 
+		 * Example URL: https://www.example.com/dir/../file.php
+		 * rebuild: false | URL is squashed to: https://www.example.com/file.php
+		 * rebuild: true | URL isn't changed: https://www.example.com/dir/../file.php
+		 */
+
 		if (opts.rebuild) {
 			curl.setOpt(Curl.option.PATH_AS_IS, false)
-		} else if (typeof opts.rebuild == 'undefined') {
-			curl.setOpt(Curl.option.PATH_AS_IS, true)
 		} else {
 			curl.setOpt(Curl.option.PATH_AS_IS, true)
 		}
@@ -86,9 +125,15 @@ request = async (opts) => {
 			curl.setOpt('POSTFIELDS', data.join('&'))
 		}
 
-		// HTTP VERSION
+		/**
+		 * http2: boolean
+		 * Whether or not to use HTTP2 when making the HTTP request.
+		 */
+
 		if (opts.http2) {
 			curl.setOpt('HTTP_VERSION', 'CURL_HTTP_VERSION_2_0')
+		} else {
+			curl.setOpt('HTTP_VERSION', 'CURL_HTTP_VERSION_1_1')
 		}
 
 		// Append headers to the request
@@ -143,7 +188,11 @@ request = async (opts) => {
 			curl.setOpt('PROXY', opts.proxy)
 		}
 
-		// Cipher suites
+		/**
+		 * ciphers: array || string
+		 * Cipher suites to be suggest during the TLS negotiation
+		 */
+
 		if (typeof opts.ciphers !== 'undefined') {
 			if (typeof opts.ciphers === 'array') {
 				curl.setOpt('SSL_CIPHER_LIST', opts.ciphers.join(' '))
@@ -177,6 +226,8 @@ request = async (opts) => {
 			if (opts.followRedirects && curl.getInfo("REDIRECT_URL")) {
 				opts.redirectCount = (opts.redirectCount + 1) || 1
 				if (opts.redirectCount != opts.maxRedirects) {
+					// Use the same socket when following the redirect.
+					opts.forever = true
 					opts.url = curl.getInfo("REDIRECT_URL")
 					this.close();
 					return resolve(request(opts))
