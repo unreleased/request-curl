@@ -1,4 +1,6 @@
-const { Curl } = require('node-libcurl')
+const {
+	Curl
+} = require('node-libcurl')
 const tough = require('tough-cookie')
 const deepmerge = require('deepmerge');
 
@@ -51,8 +53,8 @@ request = async (opts) => {
 		} else {
 			curl.setOpt('URL', opts.url)
 		}
-		
-		
+
+
 
 		/**
 		 * TODO: Add notes
@@ -123,6 +125,10 @@ request = async (opts) => {
 			}
 
 			curl.setOpt('POSTFIELDS', data.join('&'))
+		} else if (opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost) && opts.body) {
+			curl.setOpt('POSTFIELDS', JSON.stringify(opts.body));
+		} else if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && opts.headers && Object.keys(opts.headers).map(x => x.toLowerCase()).includes("content-type")) {
+			curl.setOpt('POSTFIELDS', opts.body);
 		}
 
 		/**
@@ -145,6 +151,7 @@ request = async (opts) => {
 				if (header.toLowerCase() == 'cookie') {
 					if (opts.jar) {
 						// Get their cookies from their current jar
+
 						const jarCookies = opts.jar.getCookieStringSync(opts.url)
 
 						// Append cookies from their header to the jar
@@ -161,7 +168,7 @@ request = async (opts) => {
 						try {
 							const cookies = tough.Cookie.parse(opts.headers[header]).toString()
 							headers.push(`${header}: ${cookies}`)
-						} catch(err) {
+						} catch (err) {
 							throw new Error(`Cookie error: ${err.message}`)
 						}
 					}
@@ -178,6 +185,18 @@ request = async (opts) => {
 					const cookies = opts.jar.getCookieStringSync(opts.url)
 					headers.push(`cookie: ${cookies}`)
 				}
+			}
+
+			if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost)) {
+				headers.push(`content-type: application/json`);
+				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
+			}
+			curl.setOpt(Curl.option.HTTPHEADER, headers);
+		} else {
+			let headers = [];
+			if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) (opts.json || opts.jsonPost)) {
+				headers.push(`content-type: application/json`);
+				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
 			}
 
 			curl.setOpt(Curl.option.HTTPHEADER, headers)
@@ -213,7 +232,7 @@ request = async (opts) => {
 				if (header != 'result') {
 					headerList[header] = respHeaders[header]
 				}
-				
+
 				// Append the set cookies to their jar if they are using
 				if (header.toLowerCase() == 'set-cookie' && opts.jar) {
 					respHeaders[header].forEach(el => {
@@ -241,20 +260,28 @@ request = async (opts) => {
 			}
 
 			// Create request.js similar-style response
-			const response = {
+			let response = {
 				body: body,
 				headers: headerList,
-				statusCode: statusCode,
-				time: this.getInfo('TOTAL_TIME')
+				statusCode: statusCode
+			}
+
+			if (opts.additionalInfo) {
+				let additionalInfoObject = {
+					finalUrl: opts.url,
+					time: this.getInfo('TOTAL_TIME')
+				}
+
+				Object.assign(response, additionalInfoObject);
 			}
 
 			this.close();
 			resolve(response)
 		});
 
-		curl.on('error', function(err) {
-				curl.close.bind(curl)
-				reject(err)
+		curl.on('error', function (err) {
+			curl.close.bind(curl)
+			reject(err)
 		})
 
 		curl.perform();
@@ -273,4 +300,3 @@ request.defaults = (defaults = {}) => {
 }
 
 module.exports = request
-

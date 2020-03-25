@@ -1,4 +1,4 @@
-# curl-request
+# request-curl
 
 The goal of this library is to use the request.js syntax/options without using NodeJS's default HTTP Client and instead using cURL to make the requests. Made after spending too long looking for a good HTTP2 supported request client without running into major issues when using proxies or making mass requests such as [`h2-request`](https://www.npmjs.com/package/h2-request) or [`got`](https://www.npmjs.com/package/got). Built to help emulate similar browser-similar HTTP(S) requests to browsers without using a CPU/Memory intensive program such as Selenium or Puppeteer.
 
