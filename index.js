@@ -86,10 +86,11 @@ request = async (opts) => {
 		if (opts.forever) {
 			curl.setOpt(Curl.option.TCP_KEEPALIVE, 2)
 			curl.setOpt(Curl.option.FORBID_REUSE, 0)
+			curl.setOpt(Curl.option.FRESH_CONNECT, 0)
 		} else {
+			curl.setOpt(Curl.option.FRESH_CONNECT, 1)
 			curl.setOpt(Curl.option.TCP_KEEPALIVE, 0)
 			curl.setOpt(Curl.option.FORBID_REUSE, 2)
-
 		}
 
 		// Tunnel through proxy
