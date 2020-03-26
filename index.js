@@ -257,7 +257,9 @@ request = async (opts) => {
 			// Parse JSON if needed
 			let body = data
 			if (opts.json) {
-				body = JSON.parse(data)
+				try {
+					body = JSON.parse(data)
+				} catch(err) {}
 			}
 
 			// Create request.js similar-style response
