@@ -3,9 +3,6 @@ const {
 } = require('node-libcurl')
 const tough = require('tough-cookie')
 const deepmerge = require('deepmerge');
-const decompressResponse = require('decompress-response');
-// const zlib = require('zlib');
-// const zlib = require('minizlib')
 
 let request = {
 	defaults: {},
