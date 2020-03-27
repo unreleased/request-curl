@@ -3,6 +3,9 @@ const {
 } = require('node-libcurl')
 const tough = require('tough-cookie')
 const deepmerge = require('deepmerge');
+const decompressResponse = require('decompress-response');
+// const zlib = require('zlib');
+// const zlib = require('minizlib')
 
 let request = {
 	defaults: {},
@@ -24,10 +27,28 @@ request = async (opts) => {
 		// Uncomment for debugging requests
 		// curl.setOpt('VERBOSE', 1)
 
+		/**
+		 * Get request method to be used in request.
+		 * Defaults to GET if opts.method is undefined
+		 */
 
-		// A few default values.
 		curl.setOpt('CUSTOMREQUEST', opts.method || 'GET')
-		curl.setOpt('ACCEPT_ENCODING', '')
+
+
+		/**
+		 * Compression handling. Stops fatal errors being thrown for unsupport `content-encoding` headers
+		 * I actually don't have a good fix for this yet so this is the best i can do until I can just
+		 * Make it return the request body when decoding fails
+		 * 
+		 * gzip: Boolean
+		 * (fallback support for request.js) but will decode all types of encoding anyway (brotli, deflate)
+		 */
+
+		if (opts.gzip || opts.decode) {
+			curl.setOpt('ACCEPT_ENCODING', '')
+		} else {
+			curl.setOpt('HTTP_CONTENT_DECODING', '0')
+		}
 
 		/**
 		 * Disable NPN (Older) and enable ALPN (More modern)
@@ -68,7 +89,7 @@ request = async (opts) => {
 		}
 
 		/**
-		 * timeout: int(ms)
+		 * timeout: Int(ms)
 		 * Kill the socket attempting to connect after X milliseconds
 		 */
 
@@ -78,7 +99,7 @@ request = async (opts) => {
 
 
 		/**
-		 * forever: boolean
+		 * forever: Boolean
 		 * Keeps the TCP connection open allowing request re-use.
 		 * To the best of my knowledge sites CAN detect when you are reusing a socket
 		 */
@@ -101,7 +122,7 @@ request = async (opts) => {
 		}
 
 		/**
-		 * rebuild: boolean
+		 * rebuild: Boolean
 		 * Whether or not to squash the path-sequencing. Can be used to send unsquished http requests
 		 * 
 		 * Example URL: https://www.example.com/dir/../file.php
@@ -133,7 +154,7 @@ request = async (opts) => {
 		}
 
 		/**
-		 * http2: boolean
+		 * http2: Boolean
 		 * Whether or not to use HTTP2 when making the HTTP request.
 		 */
 
@@ -209,7 +230,7 @@ request = async (opts) => {
 		}
 
 		/**
-		 * ciphers: array || string
+		 * ciphers: Array || String
 		 * Cipher suites to be suggest during the TLS negotiation
 		 */
 
@@ -221,10 +242,13 @@ request = async (opts) => {
 			}
 		}
 
-		// Disable cURL redirects because they're handled manually.
+		/**
+		 * Disable cURL redirects because they're handled manually.
+		 */
+
 		curl.setOpt('FOLLOWLOCATION', false)
 
-		curl.on('end', function (statusCode, data, headers) {
+		curl.on('end', async function (statusCode, data, headers) {
 			// Remove results header and compress into single object
 			const respHeaders = headers[(headers.length - 1)]
 			const headerList = {}
@@ -252,7 +276,8 @@ request = async (opts) => {
 					this.close();
 					return resolve(request(opts))
 				}
-			}
+			}			
+
 
 			// Parse JSON if needed
 			let body = data
@@ -262,9 +287,8 @@ request = async (opts) => {
 				} catch(err) {}
 			}
 
-			// Create request.js similar-style response
 			let response = {
-				body: body,
+				body: data,
 				headers: headerList,
 				statusCode: statusCode
 			}
@@ -286,6 +310,8 @@ request = async (opts) => {
 			curl.close.bind(curl)
 			reject(err)
 		})
+
+		
 
 		curl.perform();
 	})

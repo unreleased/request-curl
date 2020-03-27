@@ -70,6 +70,8 @@ const opts = {
 
 Curl-request has support for `br`, `gzip` and `deflate` compression, This means You can use the same `Accept-Encoding` headers as Google Chrome whilst being able to decode the response. Also helps save file-transfer size.
 
+You can decode these types of responses using `decode: true` or `gzip: true` (The gzip parameter is for fallback support for request.js). Some websites can return invalid content-encoding types which cURL cannot handle throwing a fatal error. You can get the raw response by setting `decode: false`
+
 ## Redirects
 
 You can specify whether to follow redirects using the `followRedirects` key. By default Curl-request will follow 3XX redirects. You can also specify a maximum amount of redirects to follow before exiting the request (Prevent getting stuck in a redirect loop)

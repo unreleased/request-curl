@@ -1,6 +1,6 @@
 {
   "_from": "github:elmthedev/request-curl",
-  "_id": "request-curl@1.1.6",
+  "_id": "request-curl@1.2.1",
   "_inBundle": false,
   "_integrity": "",
   "_location": "/request-curl",
@@ -31,8 +31,11 @@
   },
   "bundleDependencies": false,
   "dependencies": {
+    "decompress-response": "^5.0.0",
     "deepmerge": "^4.2.2",
+    "inflation": "^2.0.0",
     "node-libcurl": "^2.0.3",
+    "raw": "^0.1.4",
     "tough-cookie": "^4.0.0"
   },
   "deprecated": false,
@@ -59,5 +62,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.2.0"
+  "version": "1.2.1"
 }
