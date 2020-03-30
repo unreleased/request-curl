@@ -25,6 +25,7 @@ request = async (opts) => {
 		// curl.setOpt('VERBOSE', 1)
 
 		/**
+		 * 
 		 * Get request method to be used in request.
 		 * Defaults to GET if opts.method is undefined
 		 */
@@ -53,7 +54,7 @@ request = async (opts) => {
 		 * and can be detected.
 		 */
 
-		curl.setOpt('SSL_ENABLE_ALPN', true)
+		curl.setOpt('SSL_ENABLE_ALPN', false)
         curl.setOpt('SSL_ENABLE_NPN', false)
 
 		/**
@@ -106,10 +107,13 @@ request = async (opts) => {
 			curl.setOpt(Curl.option.FORBID_REUSE, 0)
 			curl.setOpt(Curl.option.FRESH_CONNECT, 0)
 		} else {
-			curl.setOpt(Curl.option.FRESH_CONNECT, 1)
 			curl.setOpt(Curl.option.TCP_KEEPALIVE, 0)
 			curl.setOpt(Curl.option.FORBID_REUSE, 2)
+			curl.setOpt(Curl.option.FRESH_CONNECT, 1)
 		}
+
+		curl.setOpt('SSL_ENABLE_ALPN', 0)
+		curl.setOpt('SSL_ENABLE_NPN', 0)
 
 		// Tunnel through proxy
 		if (opts.tunnel) {
@@ -156,10 +160,19 @@ request = async (opts) => {
 		 */
 
 		if (opts.http2) {
+			/**
+			 * Enable ALPN when using http2: true
+			 * node-libcurl seems to always force HTTP2 to be used in the request, so we disable it at the start.
+			 */
+
+			curl.setOpt('SSL_ENABLE_ALPN', true)
 			curl.setOpt('HTTP_VERSION', 'CURL_HTTP_VERSION_2_0')
 		} else {
 			curl.setOpt('HTTP_VERSION', 'CURL_HTTP_VERSION_1_1')
 		}
+
+		// curl.setOpt('HTTP_VERSION', 'HTTP_VERSION_1_1')
+
 
 		// Append headers to the request
 		if (typeof opts.headers === 'object') {
