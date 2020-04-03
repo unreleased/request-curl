@@ -10,7 +10,7 @@ let request = {
 
 request = async (opts) => {
 	// Handle defaults, prevent deepmerge from breaking the cookiejar.
-	requestOpts = opts
+	const requestOpts = request.defaults
 	if (request.defaults) {
 		opts = deepmerge(request.defaults, opts)
 		if (opts.jar) {
