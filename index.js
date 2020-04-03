@@ -235,7 +235,7 @@ request = async (opts) => {
 		}
 
 		// Proxy usage
-		if (typeof opts.proxy !== 'undefined') {
+		if (opts.proxy) {
 			curl.setOpt('PROXY', opts.proxy)
 		}
 
