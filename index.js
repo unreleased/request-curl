@@ -22,7 +22,9 @@ request = async (opts) => {
 		const curl = new Curl()
 
 		// Uncomment for debugging requests
-		// curl.setOpt('VERBOSE', 1)
+		if (opts.verbose) {
+			curl.setOpt('VERBOSE', 1)
+		}
 
 		/**
 		 * 
@@ -233,14 +235,15 @@ request = async (opts) => {
 
 			if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost)) {
 				headers.push(`content-type: application/json`);
-				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
+				headers.push(`content-length: ${(opts.body ? JSON.stringify(opts.body).length : 0)}`);
+				
 			}
 			curl.setOpt(Curl.option.HTTPHEADER, headers);
 		} else {
 			let headers = [];
 			if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) (opts.json || opts.jsonPost)) {
 				headers.push(`content-type: application/json`);
-				headers.push(`content-length: ${JSON.stringify(opts.body).length}`);
+				headers.push(`content-length: ${JSON.stringify(opts.body).length || 0}`);
 			}
 
 			curl.setOpt(Curl.option.HTTPHEADER, headers)
@@ -295,7 +298,14 @@ request = async (opts) => {
 					// Use the same socket when following the redirect.
 					opts.forever = true
 					opts.url = curl.getInfo("REDIRECT_URL")
+
+
 					opts.method = opts.followMethod || opts.method
+					if (opts.method == 'GET') {
+						// Delete form if following request is GET
+						opts.form = {}
+					}
+
 					this.close();
 					return resolve(request(opts))
 				}
@@ -311,7 +321,7 @@ request = async (opts) => {
 			}
 
 			let response = {
-				body: data,
+				body: body,
 				headers: headerList,
 				statusCode: statusCode
 			}
