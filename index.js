@@ -295,6 +295,7 @@ request = async (opts) => {
 					// Use the same socket when following the redirect.
 					opts.forever = true
 					opts.url = curl.getInfo("REDIRECT_URL")
+					opts.method = opts.followMethod || opts.method
 					this.close();
 					return resolve(request(opts))
 				}
