@@ -147,7 +147,19 @@ request = async (opts) => {
 				data.push(`${key}=${opts.form[key]}`)
 			}
 
-			curl.setOpt('POSTFIELDS', data.join('&'))
+			const fields = data.join('&')
+			curl.setOpt('POSTFIELDS', fields)
+
+			// Append content-length header if it exists
+			if (opts && opts.headers) {
+				opts.headers['content-length'] = fields.length
+			} else {
+				opts.headers = {
+					'content-length': fields.length
+				}
+			}
+
+
 		} else if (opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && (opts.json || opts.jsonPost) && opts.body) {
 			curl.setOpt('POSTFIELDS', JSON.stringify(opts.body));
 		} else if(opts.method && ["POST", "PATCH"].includes(opts.method.toUpperCase()) && opts.headers && Object.keys(opts.headers).map(x => x.toLowerCase()).includes("content-type")) {
