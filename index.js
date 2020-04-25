@@ -78,6 +78,8 @@ const request = async function (opts) {
     } else {
       // Default, requests will fail without valid SSL certificate
       curl.setOpt("SSL_VERIFYPEER", false)
+      curl.setOpt("SSL_VERIFYHOST", false)
+      curl.setOpt("SSL_VERIFYSTATUS", false)
     }
 
     /**
