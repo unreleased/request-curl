@@ -5,19 +5,18 @@ The goal of this library is to use the request.js syntax/options without using N
 ## Supported Features
 
 - [x] Headers
-- [x] HTTP1/HTTP2
+- [x] HTTP1.1/HTTP2
 - [x] Cipher suites
 - [x] Proxy support
 - [x] gzip, deflare & br decompression
 - [x] Following redirects
 - [x] Max redirects
 - [x] SSL support
-- [x] Proxy tunnelling
 - [x] Automatically convert body to JSON
 - [x] Built in JSON parsing
 - [x] Automatic Cookiejar/Cookie sessions through ['tough-cookie'](https://www.npmjs.com/package/tough-cookie)
 - [x] Supports path as is and disabling rebuilding path dot sequences (AKA Path traversing) `/../`
-- [ ] Support sending JSON body in request
+- [X] Support sending JSON body in request
 - [x] Ability to disable tcp socket reuse
 
 
@@ -38,22 +37,6 @@ const opts = {
 ## HTTP2
 
 Curl-request has built in HTTP2 support. This is not enabled by default and must be enabled with the `http2: true` option.
-
-## Cipher suites
-
-You can specify custom cipher suites as an array or space-separated string.
-
-```javascript
-const opts = {
-    url: 'https://www.httpbin.org/headers',
-    ciphers: [ // No default ciphers set.
-        'AES128-SHA256',
-        'AES256-SHA256',
-        'AES128-GCM-SHA256',
-        'AES256-GCM-SHA384'
-    ]
-}
-```
 
 ## Proxy Support
 
@@ -84,16 +67,6 @@ const opts = {
 }
 ```
 
-## Path-dot-sequence
-
-Curl-request has support for allowing or disallowing URL rebuilding `https://www.example.com/foo/../bar` could collapse to `https://www.example.com/bar`
-
-```javascript
-const opts = {
-    url: 'https://www.httpbin.org/test/../headers', // This won't be collapsed if rebuild is set as false.
-    rebuild: false // Default true
-}
-```
 
 ## SSL
 
