@@ -1,47 +1,14 @@
 {
-  "_from": "github:elmthedev/request-curl",
-  "_id": "request-curl@1.2.7",
-  "_inBundle": false,
-  "_integrity": "",
-  "_location": "/request-curl",
-  "_phantomChildren": {
-    "psl": "1.7.0",
-    "punycode": "2.1.1"
+  "name": "request-curl",
+  "main": "index.js",
+  "version": "1.0.0",
+  "description": "Request.js syntax written with cURL bindings",
+  "scripts": {
+    "test": "mocha"
   },
-  "_requested": {
-    "type": "git",
-    "raw": "github:elmthedev/request-curl",
-    "rawSpec": "github:elmthedev/request-curl",
-    "saveSpec": "github:elmthedev/request-curl",
-    "fetchSpec": null,
-    "gitCommittish": null
-  },
-  "_requiredBy": [
-    "#USER",
-    "/"
-  ],
-  "_resolved": "github:elmthedev/request-curl#e8d5aaf3d9a03810f97b15f5284cc5d11d279610",
-  "_spec": "github:elmthedev/request-curl",
-  "_where": "D:\\Node Projects\\rattenfanger-shopify-x",
   "author": {
     "name": "@unreleased"
   },
-  "bugs": {
-    "url": "https://github.com/unreleased/request-curl/issues"
-  },
-  "bundleDependencies": false,
-  "dependencies": {
-    "deepmerge": "^4.2.2",
-    "node-libcurl": "^2.0.3",
-    "tough-cookie": "^4.0.0"
-  },
-  "deprecated": false,
-  "description": "The goal of this library is to use the request.js syntax/options without using NodeJS's default HTTP Client and instead using cURL to make the requests. Made after spending too long looking for a good HTTP2 supported request client without running into major issues when using proxies or making mass requests such as `h2-request` or `got`",
-  "devDependencies": {},
-  "directories": {
-    "test": "tests"
-  },
-  "homepage": "https://github.com/unreleased/request-curl#readme",
   "keywords": [
     "request.js",
     "request-curl",
@@ -50,14 +17,8 @@
     "h2"
   ],
   "license": "ISC",
-  "main": "index.js",
-  "name": "request-curl",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/unreleased/request-curl.git"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "version": "1.2.8"
+  "dependencies": {
+    "caseless": "^0.12.0",
+    "node-libcurl": "^2.1.1"
+  }
 }
