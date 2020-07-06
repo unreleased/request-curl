@@ -16,9 +16,88 @@ The goal of this library is to use the request.js syntax/options without using N
 - [x] Built in JSON parsing
 - [x] Automatic Cookiejar/Cookie sessions through ['tough-cookie'](https://www.npmjs.com/package/tough-cookie)
 - [x] Supports path as is and disabling rebuilding path dot sequences (AKA Path traversing) `/../`
-- [X] Support sending JSON body in request
+- [x] Support sending JSON body in request
 - [x] Ability to disable tcp socket reuse
+- [ ] Ability to use `transform` functions
 
+# Getting Started
+```javascript
+const rc = require("request-curl");
+```
+`request-curl` works very similar to `request-promise`. The package wraps `node-libcurl` into native promises and uses syntax based on `request`.
+
+## Crawl a webpage
+```javascript
+(async () => {
+  const opts = {
+    uri: "https://www.google.com",
+    headers: {
+      "User-Agent": "request-curl",
+    },
+  };
+  const resp = await rc(opts);
+  console.log(resp.body);
+});
+```
+By default, the option `resolveWithFullResponse` is set to true, unlike in `request`. If you want to resolve with only the body, set `resolveWithFullResponse` to `false`.
+
+## GET something from a JSON REST API
+```javascript
+(async() => {
+  const opts = {
+    uri: "http://httpbin.org/get",
+    json: true, // Automatically parses JSON string in response
+    headers: {
+      "User-Agent": "request-curl",
+    };
+  };
+  const resp = await rc(opts);
+  console.log(resp.body);
+});
+```
+
+## POST data to JSON REST API
+```javascript
+(async () => {
+  const opts = {
+    uri: "http://httpbin.org/post",
+    json: true,
+    body: {
+      "hello": "world",
+    },
+  };
+  const resp = await rc(opts);
+  console.log(resp.body);
+});
+```
+
+## POST like HTML forms
+```javascript
+(async() => {
+  const options = {
+    uri: "http://httpbin.org/post",
+    form: {
+      "hello": "world",
+    },
+  };
+  const resp = await rc(opts);
+  console.log(resp.body);
+});
+```
+
+## Use query strings
+```javascript
+(async() => {
+  const options = {
+    uri: "http://httpbin.org/get",
+    qs: {
+      "hello": "world",
+    },
+  };
+  const resp = await rc(opts);
+  console.log(resp.body);
+});
+```
 
 ## Headers
 
