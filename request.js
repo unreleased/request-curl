@@ -1,5 +1,4 @@
 const { Curl } = require("node-libcurl")
-const tough = require("tough-cookie")
 const Caseless = require('caseless')
 const url = require('url')
 
@@ -13,6 +12,20 @@ class Request {
     // Support uri/url params
     if (options.url) {
       options.uri = options.url
+    }
+
+    if (options.qs) {
+      const parsed = url.parse(options.uri)
+
+      // Append to query param
+      options.uri += (!parsed.search) ? `?` : (parsed.search == '?') ? '' : '&'
+
+      const values = []
+      for (let key in options.qs) {
+        values.push(`${key}=${options.qs[key]}`)
+      }
+
+      options.uri += values.join('&')
     }
 
     // await new Promise(resolve => setTimeout(resolve, '1000'))
@@ -31,8 +44,9 @@ class Request {
         })
       }
 
-      if (typeof options.strictSSL === 'undefined' || options.strictSSL == true) {
-        // Not set strictssl, default is true - verify that cert
+
+
+      if (options.strictSSL) {
         curl.setOpt('CAINFO', './cacert-2020-01-01.pem');
       } else {
         curl.setOpt('SSL_VERIFYPEER', false)
@@ -118,6 +132,13 @@ class Request {
         curl.setOpt("POSTFIELDS", JSON.stringify(options.body))
       }
 
+      if (options.qs) {
+        // Support qs parameter the same as request-promise
+        const parsed = url.parse(options.uri)
+        console.log(parsed)
+      }
+
+
       // HTTP2
       if (options.http2) {
         curl.setOpt('SSL_ENABLE_ALPN', true)
@@ -130,9 +151,8 @@ class Request {
       let hasCookieHeader = false
 
       if (typeof options.headers === 'object') {
-        const caseless = Caseless(options.headers)
         for (const header in options.headers) {
-          if (caseless.get('cookie')) {
+          if (header.toLowerCase() == 'cookie') {
             if (options.jar) {
               const cookiesInJar = options.jar.getCookieStringSync(options.uri)
               if (!cookiesInJar) {
@@ -144,12 +164,12 @@ class Request {
               }
             } else {
               // Has cookie header but no jar, just append
-              headers.push(`${header}: ${options.headers[header]}`)  
+              headers.push(`${header}: ${options.headers[header]}`)
             }
 
             hasCookieHeader = true
           } else {
-            headers.push(`${header}: ${options.headers[header]}`)  
+            headers.push(`${header}: ${options.headers[header]}`)
           }
         }
       }
@@ -200,6 +220,7 @@ class Request {
           }
         }
 
+
         if (options.followRedirects && curl.getInfo("REDIRECT_URL")) {
           options.redirectCount = options.redirectCount + 1 || 1
           if (options.redirectCount != options.maxRedirects) {
@@ -223,9 +244,7 @@ class Request {
         if (options.json) {
           try {
             data = JSON.parse(data)
-          } catch (err) {
-            throw new Error(err)
-          }
+          } catch (err) { }
         }
 
         // Convert response into same format as request-promise
@@ -237,6 +256,13 @@ class Request {
 
         // Close then resolve to prevent memory leaks
         this.close()
+
+        if (options.runner) {
+          // Runner, runs a function passed to it before resolving closing
+          // Allows you to do logging etc
+          options.runner(response)
+        }
+
         resolve(response)
       })
 
