@@ -105,7 +105,7 @@ Currently header order is not supported by cURL. This isn't really a big issue c
 
 ```javascript
 const opts = {
-    url: 'https://www.httpbin.org/headers'
+    url: 'https://www.httpbin.org/headers',
     headers: { // No default headers
         'User-agent': 'CurlyRequest/v1',
         'Accept': 'application/json'
